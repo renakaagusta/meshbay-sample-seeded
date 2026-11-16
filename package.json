@@ -1,0 +1,23 @@
+{
+  "name": "meshbay-sample-seeded",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": "22.x"
+  },
+  "description": "Meshbay fixture: Node.js + Prisma + Postgres, migrated and seeded on every deploy",
+  "scripts": {
+    "start": "node src/server.js",
+    "seed": "node prisma/seed.js",
+    "migrate": "prisma migrate deploy",
+    "check": "node --check src/server.js && node --check src/database.js && node --check prisma/seed.js",
+    "postinstall": "prisma generate"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
+  },
+  "dependencies": {
+    "@prisma/client": "6.19.3",
+    "prisma": "6.19.3"
+  }
+}

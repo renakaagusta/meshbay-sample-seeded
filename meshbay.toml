@@ -1,0 +1,36 @@
+# Meshbay manifest for the "seeded" fixture: one API service whose database is
+# migrated and seeded before every rollout.
+#
+# The Postgres database is attached to the project, so its connection string
+# arrives as the DATABASE_URL project variable and never lives in this file.
+[[services]]
+name = "api"
+# pre_deploy runs as `sh -c <command>` in the new revision's image, before that
+# revision starts. `migrate deploy` applies pending Prisma migrations and
+# `db seed` upserts the reference rows; either one exiting non-zero stops the
+# rollout, so the previous revision keeps serving.
+pre_deploy = "npx prisma migrate deploy && npx prisma db seed"
+ports = ["8080"]
+
+[services.build]
+builder = "railpack"
+start = "node src/server.js"
+
+[services.resources]
+cpus = 1
+memory = "512M"
+
+[services.healthcheck]
+path = "/health"
+interval = "10s"
+timeout = "3s"
+start_period = "20s"
+retries = 5
+
+[services.env]
+# Name only: the value is the project variable that points at this project's
+# Postgres database (Meshbay injects PORT itself).
+DATABASE_URL = ""
+# Empty by default. Set it to 1 as a project variable to make `prisma db seed`
+# exit non-zero and watch the rollout stop.
+FAIL_SEED = ""

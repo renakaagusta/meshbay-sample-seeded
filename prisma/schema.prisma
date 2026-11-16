@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Plan {
+  id         Int      @id @default(autoincrement())
+  code       String   @unique
+  name       String
+  priceCents Int      @map("price_cents")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("plans")
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  role      String   @default("admin")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("users")
+}
+
+model Item {
+  id        Int      @id @default(autoincrement())
+  name      String
+  note      String   @default("")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([createdAt])
+  @@map("items")
+}
+
+model SeedState {
+  id        Int      @id @default(1)
+  runCount  Int      @default(0) @map("run_count")
+  lastRunAt DateTime @default(now()) @map("last_run_at")
+
+  @@map("seed_state")
+}
