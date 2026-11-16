@@ -115,10 +115,17 @@ while `/meta` shows `seedRuns` one higher. That is the idempotency proof.
 
 ## Run locally
 
-Needs a reachable Postgres:
+`prisma validate` only needs `DATABASE_URL` to be *set*, not reachable:
 
 ```sh
 npm install
+DATABASE_URL=postgres://user:password@localhost:5432/app npx prisma validate
+npm run check
+```
+
+The full flow needs a reachable Postgres:
+
+```sh
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/app npx prisma migrate deploy
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/app npx prisma db seed
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/app PORT=8080 node src/server.js
