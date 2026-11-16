@@ -65,10 +65,11 @@ Postgres database attached to the project.
 
 ## Migrations and seeding
 
-`prisma/migrations/` holds two plain-SQL migrations:
+`prisma/migrations/` holds three plain-SQL migrations:
 
 * `20261116090000_init` — `plans`, `users`, `items` and `seed_state`.
-* `20261116090100_items_note` — adds `items.note` and an index on `items.created_at`.`prisma migrate deploy` records each applied migration in `_prisma_migrations`, and `/meta` reports
+* `20261116090100_items_note` — adds `items.note` and an index on `items.created_at`.
+* `20261116100000_items_labels` — the v2 upgrade: adds the nullable `items.labels` column.`prisma migrate deploy` records each applied migration in `_prisma_migrations`, and `/meta` reports
 the newest `migration_name` from that table.
 
 `prisma/seed.js` upserts fixed reference data:

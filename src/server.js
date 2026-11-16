@@ -4,7 +4,7 @@ const { Prisma } = require("@prisma/client");
 const database = require("./database");
 
 const defaultPort = 8080;
-const appVersion = "v1";
+const appVersion = "v2";
 const maximumBodyBytes = 64 * 1024;
 
 class HttpError extends Error {

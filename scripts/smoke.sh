@@ -66,8 +66,8 @@ echo "ok   GET /health reaches Postgres"
 # --- seeded reference data ---------------------------------------------------
 request "$baseUrl/version"
 expectStatus "GET /version" 200
-[[ "$(jq -r '.version // empty' "$responseFile")" == "v1" ]] \
-  || fail "/version does not report v1"
+[[ "$(jq -r '.version // empty' "$responseFile")" == "v2" ]] \
+  || fail "/version does not report v2"
 
 request "$baseUrl/plans"
 expectStatus "GET /plans" 200
@@ -85,8 +85,8 @@ expectStatus "GET /meta" 200
 lastMigration="$(jq -r '.lastMigration // empty' "$responseFile")"
 seedRuns="$(jq -r '.seedRuns // empty' "$responseFile")"
 [[ -n "$lastMigration" ]] || fail "/meta has no lastMigration (migrate deploy never recorded one)"
-[[ "$lastMigration" == "20261116090100_items_note" ]] \
-  || fail "/meta reports migration '$lastMigration', expected 20261116090100_items_note"
+[[ "$lastMigration" == "20261116100000_items_labels" ]] \
+  || fail "/meta reports migration '$lastMigration', expected 20261116100000_items_labels"
 [[ "$seedRuns" =~ ^[0-9]+$ ]] || fail "/meta has no seed run count"
 (( seedRuns >= 1 )) || fail "/meta seedRuns is $seedRuns, expected at least 1"
 if [[ -n "$expectedSeedRuns" ]]; then
