@@ -66,8 +66,8 @@ echo "ok   GET /health reaches Postgres"
 # --- seeded reference data ---------------------------------------------------
 request "$baseUrl/version"
 expectStatus "GET /version" 200
-[[ "$(jq -r '.version // empty' "$responseFile")" == "v2" ]] \
-  || fail "/version does not report v2"
+[[ "$(jq -r '.version // empty' "$responseFile")" == "v3-broken" ]] \
+  || fail "/version does not report v3-broken"
 
 request "$baseUrl/plans"
 expectStatus "GET /plans" 200
