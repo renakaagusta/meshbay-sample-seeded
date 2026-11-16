@@ -6,10 +6,11 @@
 [[services]]
 name = "api"
 # pre_deploy runs as `sh -c <command>` in the new revision's image, before that
-# revision starts. `migrate deploy` applies pending Prisma migrations and
-# `db seed` upserts the reference rows; either one exiting non-zero stops the
-# rollout, so the previous revision keeps serving.
-pre_deploy = "npx prisma migrate deploy && npx prisma db seed"
+# revision starts. scripts/pre-deploy.sh clears a migration a previous broken
+# revision left failed, applies pending Prisma migrations and upserts the
+# reference rows; any step exiting non-zero stops the rollout, so the previous
+# revision keeps serving.
+pre_deploy = "sh scripts/pre-deploy.sh"
 ports = ["8080"]
 
 [services.build]

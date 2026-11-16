@@ -41,6 +41,7 @@ meshbay-sample-seeded
 | Method | Path | Description |
 |---|---|---|
 | GET | `/health` | `200` `{"status":"ok","database":"ok"}`; `503` when Postgres is unreachable |
+| GET | `/version` | `version` of the deployed revision: `v1`, `v2` or `v3-broken` |
 | GET | `/plans` | JSON array of the seeded plans, `priceCents` included |
 | GET | `/meta` | `lastMigration`, `lastMigrationAt`, `seedRuns`, `lastSeedAt`, `plans` |
 | GET | `/api/items` (also `/items`) | JSON array of items |
@@ -67,9 +68,7 @@ Postgres database attached to the project.
 `prisma/migrations/` holds two plain-SQL migrations:
 
 * `20261116090000_init` — `plans`, `users`, `items` and `seed_state`.
-* `20261116090100_items_note` — adds `items.note` and an index on `items.created_at`.
-
-`prisma migrate deploy` records each applied migration in `_prisma_migrations`, and `/meta` reports
+* `20261116090100_items_note` — adds `items.note` and an index on `items.created_at`.`prisma migrate deploy` records each applied migration in `_prisma_migrations`, and `/meta` reports
 the newest `migration_name` from that table.
 
 `prisma/seed.js` upserts fixed reference data:
@@ -133,6 +132,27 @@ bash scripts/smoke.sh http://localhost:8080
 ```
 
 `FAIL_SEED=1 npx prisma db seed` exits 1 without touching the database.
+
+## Upgrade and rollback branches
+
+`main` stays the stable fixture. Three branches off it exist for the MESH-160
+upgrade/rollback scenario (`meshbay/scripts/scenarios/upgrade-rollback.sh`):
+
+| Branch | `/version` | Migration | Purpose |
+|---|---|---|---|
+| `v1` | `v1` | none beyond `main` | the revision to upgrade from and roll back to |
+| `v2` | `v2` | `20261116100000_items_labels` adds the nullable `items.labels` column | the compatible upgrade |
+| `v3-broken` | `v3-broken` | `20261116110000_items_labels_broken` is deliberately invalid SQL | the upgrade whose rollout must stop |
+
+Both `v1` and `v2` ship `scripts/pre-deploy.sh` as their pre-deploy hook. It
+marks the broken `v3-broken` migration as rolled back when a previous rollout
+left it failed, so a failed experiment does not block every later deploy with
+Prisma's P3009 guard; it then runs `prisma migrate deploy` and `prisma db seed`
+exactly like `main` did inline.
+
+`v2` only adds a nullable column, so `v1` data stays readable after the upgrade
+and after a rollback. `/version` is hardcoded per branch: the image, not the
+database, decides what reports `v1` or `v2`.
 
 ## Notes and known Meshbay gaps
 

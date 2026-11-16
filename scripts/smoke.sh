@@ -64,6 +64,11 @@ jq -e . "$responseFile" > /dev/null 2>&1 || fail "/health did not return JSON"
 echo "ok   GET /health reaches Postgres"
 
 # --- seeded reference data ---------------------------------------------------
+request "$baseUrl/version"
+expectStatus "GET /version" 200
+[[ "$(jq -r '.version // empty' "$responseFile")" == "v1" ]] \
+  || fail "/version does not report v1"
+
 request "$baseUrl/plans"
 expectStatus "GET /plans" 200
 jq -e 'type == "array"' "$responseFile" > /dev/null 2>&1 || fail "/plans did not return an array"

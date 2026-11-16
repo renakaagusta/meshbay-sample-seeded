@@ -4,6 +4,7 @@ const { Prisma } = require("@prisma/client");
 const database = require("./database");
 
 const defaultPort = 8080;
+const appVersion = "v1";
 const maximumBodyBytes = 64 * 1024;
 
 class HttpError extends Error {
@@ -80,6 +81,10 @@ async function healthHandler(request, response) {
     return sendJSON(response, 503, { status: "error", database: "error" });
   }
   return sendJSON(response, 200, { status: "ok", database: "ok" });
+}
+
+async function versionHandler(request, response) {
+  return sendJSON(response, 200, { version: appVersion });
 }
 
 async function plansHandler(request, response) {
@@ -177,6 +182,7 @@ async function deleteItemHandler(request, response, match) {
 
 const routes = [
   { method: "GET", pattern: /^\/health$/, handler: healthHandler },
+  { method: "GET", pattern: /^\/version$/, handler: versionHandler },
   { method: "GET", pattern: /^\/plans$/, handler: plansHandler },
   { method: "GET", pattern: /^\/meta$/, handler: metaHandler },
   { method: "GET", pattern: /^\/items$/, handler: listItemsHandler },
