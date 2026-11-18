@@ -194,8 +194,16 @@ function normalizePath(pathname) {
   return path === "" ? "/" : path;
 }
 
+function parseRequestURL(request) {
+  try {
+    return new URL(request.url, "http://placeholder.invalid");
+  } catch {
+    throw new HttpError(400, "invalid request url");
+  }
+}
+
 async function handleRequest(request, response) {
-  const url = new URL(request.url, "http://placeholder.invalid");
+  const url = parseRequestURL(request);
   const path = normalizePath(url.pathname);
   for (const route of routes) {
     if (route.method !== request.method) {
@@ -213,6 +221,9 @@ function createServer() {
   return http.createServer((request, response) => {
     handleRequest(request, response).catch((requestError) => {
       if (requestError instanceof HttpError) {
+        if (requestError.status === 400) {
+          console.warn(`${request.method} ${JSON.stringify(request.url)}: 400 ${requestError.message}`);
+        }
         return sendJSON(response, requestError.status, { error: requestError.message });
       }
       console.error(`${request.method} ${request.url}:`, requestError);
